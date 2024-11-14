@@ -2,8 +2,10 @@ package components.movie;
 
 import annotations.Autowired;
 import annotations.Component;
+import annotations.Primary;
 
 @Component
+@Primary
 public class SqlDatabaseAccess implements DatabaseAccess {
     private final NetworkCommunicator networkCommunicator;
 

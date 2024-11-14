@@ -2,8 +2,10 @@ package components.movie;
 
 import annotations.Autowired;
 import annotations.Component;
+import annotations.Primary;
 
 @Component
+@Primary
 public class InMemoryMovieFinder implements MovieFinder {
     private final DatabaseAccess databaseAccess;
 

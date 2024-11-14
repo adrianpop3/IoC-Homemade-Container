@@ -1,5 +1,7 @@
 package ioc;
 
+import annotations.Component;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -23,7 +25,10 @@ public class PackageScanner {
                     if (file.getName().endsWith(".class")) {
                         String className = packageName + '.' + file.getName().replace(".class", "");
                         Class<?> clazz = Class.forName(className);
-                        classes.add(clazz);
+
+                        if (clazz.isAnnotationPresent(Component.class)) {
+                            classes.add(clazz);
+                        }
                     }
                 }
             }
