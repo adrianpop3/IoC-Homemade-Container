@@ -2,14 +2,14 @@ package components.movie;
 
 import annotations.Autowired;
 import annotations.Component;
-import annotations.Primary;
+import annotations.Preferred;
 
 @Component
-@Primary
+@Preferred
 public class MovieListerImpl implements MovieLister {
     private final MovieFinder movieFinder;
 
-    @Autowired
+    @Autowired //(implType="inMem")
     public MovieListerImpl(MovieFinder movieFinder) {
         this.movieFinder = movieFinder;
     }

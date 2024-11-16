@@ -2,10 +2,10 @@ package components.movie;
 
 import annotations.Autowired;
 import annotations.Component;
-import annotations.Primary;
+import annotations.Preferred;
 
-@Component
-@Primary
+@Component //(customProp="inMem")
+@Preferred
 public class InMemoryMovieFinder implements MovieFinder {
     private final DatabaseAccess databaseAccess;
 

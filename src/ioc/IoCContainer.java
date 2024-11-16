@@ -2,7 +2,7 @@ package ioc;
 
 import annotations.Autowired;
 import annotations.Component;
-import annotations.Primary;
+import annotations.Preferred;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -20,16 +20,13 @@ public class IoCContainer {
     private void findAndRegisterComponents(String packageName) {
         List<Class<?>> classes = PackageScanner.findClasses(packageName);
 
-        // Identify all components and register implementations for interfaces
         for (Class<?> clazz : classes) {
             if (clazz.isAnnotationPresent(Component.class)) {
-                componentMappings.put(clazz, clazz);  // Register the class as its own implementation
+                componentMappings.put(clazz, clazz);
 
-                // Register interfaces to implementation mappings
                 for (Class<?> iface : clazz.getInterfaces()) {
                     if (componentMappings.containsKey(iface)) {
-                        // Prefer the @Primary implementation if multiple implementations exist
-                        if (clazz.isAnnotationPresent(Primary.class)) {
+                        if (clazz.isAnnotationPresent(Preferred.class)) {
                             componentMappings.put(iface, clazz);
                         }
                     } else {
@@ -38,13 +35,6 @@ public class IoCContainer {
                 }
             }
         }
-
-//        // Eagerly instantiate and cache singletons
-//        for (Class<?> clazz : componentMappings.keySet()) {
-//            if (!singletons.containsKey(clazz)) {
-//                resolve(clazz);
-//            }
-//        }
     }
 
     public <T> T resolve(Class<T> componentType) {
@@ -61,7 +51,7 @@ public class IoCContainer {
             Constructor<?> constructor = findAutowiredConstructor(implementationType);
             if (constructor == null) {
                 try {
-                    constructor = implementationType.getConstructor();  // No-arg constructor
+                    constructor = implementationType.getConstructor();
                 } catch (NoSuchMethodException e) {
                     throw new RuntimeException("No suitable constructor found for: " + implementationType.getName());
                 }

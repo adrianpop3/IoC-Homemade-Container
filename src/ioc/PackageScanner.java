@@ -19,6 +19,7 @@ public class PackageScanner {
             if (resource == null) {
                 throw new IllegalArgumentException("No package found at " + path);
             }
+
             File directory = new File(resource.getFile());
             if (directory.exists()) {
                 for (File file : directory.listFiles()) {
