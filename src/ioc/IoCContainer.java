@@ -100,6 +100,7 @@ public class IoCContainer {
     }
 
     private <T> T resolveByCustomProperty(Class<T> componentType, String customProp) {
+        System.out.println("Custom property: " + customProp);
         Class<?> implementationType = customMappings.get(customProp);
         if (implementationType == null) {
             throw new RuntimeException("No implementation found for customProp: " + customProp);
