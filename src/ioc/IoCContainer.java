@@ -12,6 +12,7 @@ import java.util.Map;
 public class IoCContainer {
     private final Map<Class<?>, Object> singletons = new HashMap<>();
     private final Map<Class<?>, Class<?>> componentMappings = new HashMap<>();
+    private final Map<String, Class<?>> customMappings = new HashMap<>();
 
     public IoCContainer(String packageName) {
         findAndRegisterComponents(packageName);
@@ -22,6 +23,13 @@ public class IoCContainer {
 
         for (Class<?> clazz : classes) {
             if (clazz.isAnnotationPresent(Component.class)) {
+
+                Component componentAnnotation = clazz.getAnnotation(Component.class);
+                String customProp = componentAnnotation.customProp();
+                if (!customProp.isEmpty()) {
+                    customMappings.put(customProp, clazz);
+                }
+
                 componentMappings.put(clazz, clazz);
 
                 for (Class<?> iface : clazz.getInterfaces()) {
@@ -60,7 +68,13 @@ public class IoCContainer {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             Object[] parameters = new Object[parameterTypes.length];
             for (int i = 0; i < parameterTypes.length; i++) {
-                parameters[i] = resolve(parameterTypes[i]);
+                Autowired autowired = getParameterAutowiredAnnotation(constructor, i);
+                if (autowired != null && !autowired.implType().isEmpty()) {
+                    String implType = autowired.implType();
+                    parameters[i] = resolveByCustomProperty(parameterTypes[i], implType);
+                } else {
+                    parameters[i] = resolve(parameterTypes[i]);
+                }
             }
 
             T instance = componentType.cast(constructor.newInstance(parameters));
@@ -79,5 +93,17 @@ public class IoCContainer {
             }
         }
         return null;
+    }
+
+    private Autowired getParameterAutowiredAnnotation(Constructor<?> constructor, int index) {
+        return constructor.getParameters()[index].getAnnotation(Autowired.class);
+    }
+
+    private <T> T resolveByCustomProperty(Class<T> componentType, String customProp) {
+        Class<?> implementationType = customMappings.get(customProp);
+        if (implementationType == null) {
+            throw new RuntimeException("No implementation found for customProp: " + customProp);
+        }
+        return resolve(implementationType.asSubclass(componentType));
     }
 }
